@@ -45,6 +45,7 @@ NimbleController::NimbleController(Pinetime::System::SystemTask& systemTask,
     currentTimeService {dateTimeController},
     musicService {systemTask},
     weatherService {systemTask, dateTimeController},
+    midiService {systemTask},
     navService {systemTask},
     batteryInformationService {batteryController},
     immediateAlertService {systemTask, notificationManager},
@@ -92,6 +93,7 @@ void NimbleController::Init() {
   currentTimeService.Init();
   musicService.Init();
   weatherService.Init();
+  midiService.Init();
   navService.Init();
   anService.Init();
   dfuService.Init();
@@ -160,9 +162,9 @@ void NimbleController::StartAdvertising() {
   }
 
   fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
-  fields.uuids128 = &dfuServiceUuid;
+  fields.uuids128 = &advServices[1];
   fields.num_uuids128 = 1;
-  fields.uuids128_is_complete = 1;
+  fields.uuids128_is_complete = 0;
   fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
 
   rsp_fields.name = reinterpret_cast<const uint8_t*>(deviceName);
@@ -324,12 +326,15 @@ int NimbleController::OnGAPEvent(ble_gap_event* event) {
       if (event->subscribe.reason == BLE_GAP_SUBSCRIBE_REASON_TERM) {
         heartRateService.UnsubscribeNotification(event->subscribe.conn_handle, event->subscribe.attr_handle);
         motionService.UnsubscribeNotification(event->subscribe.conn_handle, event->subscribe.attr_handle);
+        // midiService.UnsubscribeNotification(event->subscribe.conn_handle, event->subscribe.attr_handle);
       } else if (event->subscribe.prev_notify == 0 && event->subscribe.cur_notify == 1) {
         heartRateService.SubscribeNotification(event->subscribe.conn_handle, event->subscribe.attr_handle);
         motionService.SubscribeNotification(event->subscribe.conn_handle, event->subscribe.attr_handle);
+        // midiService.SubscribeNotification(event->subscribe.conn_handle, event->subscribe.attr_handle);
       } else if (event->subscribe.prev_notify == 1 && event->subscribe.cur_notify == 0) {
         heartRateService.UnsubscribeNotification(event->subscribe.conn_handle, event->subscribe.attr_handle);
         motionService.UnsubscribeNotification(event->subscribe.conn_handle, event->subscribe.attr_handle);
+        // midiService.UnsubscribeNotification(event->subscribe.conn_handle, event->subscribe.attr_handle);
       }
       break;
 

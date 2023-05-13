@@ -23,6 +23,7 @@
 #include "components/ble/MotionService.h"
 #include "components/ble/weather/WeatherService.h"
 #include "components/fs/FS.h"
+#include "components/ble/MIDIService.h"
 
 namespace Pinetime {
   namespace Drivers {
@@ -67,6 +68,9 @@ namespace Pinetime {
       Pinetime::Controllers::WeatherService& weather() {
         return weatherService;
       };
+      Pinetime::Controllers::MIDIService& midi() {
+        return midiService;
+      }
 
       uint16_t connHandle();
       void NotifyBatteryLevel(uint8_t level);
@@ -97,6 +101,7 @@ namespace Pinetime {
       CurrentTimeService currentTimeService;
       MusicService musicService;
       WeatherService weatherService;
+      MIDIService midiService;
       NavigationService navService;
       BatteryInformationService batteryInformationService;
       ImmediateAlertService immediateAlertService;
@@ -110,9 +115,14 @@ namespace Pinetime {
       uint8_t fastAdvCount = 0;
       uint8_t bondId[16] = {0};
 
-      ble_uuid128_t dfuServiceUuid {
+      ble_uuid128_t advServices[2] = {
+        {//DFU service(Default)
         .u {.type = BLE_UUID_TYPE_128},
-        .value = {0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xDE, 0xEF, 0x12, 0x12, 0x30, 0x15, 0x00, 0x00}};
+        .value = {0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xDE, 0xEF, 0x12, 0x12, 0x30, 0x15, 0x00, 0x00}},
+        {// MIDI Service
+        .u = {.type = BLE_UUID_TYPE_128},
+        .value = {0x00, 0xc7, 0xc4, 0x4e, 0xe3, 0x6c, 0x51, 0xa7, 0x33, 0x4b, 0xe8, 0xed, 0x5a, 0x0e, 0xb8, 0x03}},
+      };
     };
 
     static NimbleController* nptr;
